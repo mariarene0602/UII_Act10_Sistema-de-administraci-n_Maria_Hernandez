@@ -1,0 +1,116 @@
+{% extends "app_perros/base.html" %}
+
+{% block body %}
+<h3 class="m-4 text-center">Todos los Perros</h3>
+
+{# Cambiado de 'productos' a 'perros' para verificar si hay perros #}
+{% if perros %}
+<div class="row">
+    <div class="col-12">
+        <div class="card bg-light mb-4">
+            <div class="card-header">
+                <i class="fa-solid fa-list"></i> Lista de Perros
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th> {# Cambiado de Id_perro a ID, ya que es el campo 'id' de Django #}
+                            <th>Nombre</th>
+                            <th>Raza</th>
+                            <th>Fecha de Nacimiento</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th> {# Columna para los botones de acción #}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for perro in perros %}
+                        <tr>
+                            <td>{{ perro.id_perro }}</td> {# CORREGIDO: Usamos perro.id para el ID automático de Django #}
+                            <td>{{ perro.nombre }}</td>
+                            <td>{{ perro.raza }}</td>
+                            <td>{{ perro.fecha_nacimiento }}</td>
+                            <td>{{ perro.descripcion }}</td>
+                            <td>
+                                <!-- Botón de información -->
+                                {# Usamos perro.id para el ID del modal #}
+                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal{{ perro.id }}">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                </button>
+
+                                <!-- Modal de información -->
+                                {# Usamos perro.id para el ID del modal #}
+                                <div class="modal fade" id="modal{{ perro.id_perro }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                {# Cambiado para mostrar nombre y raza del perro #}
+                                                <h5 class="modal-title">{{ perro.nombre }} - {{ perro.raza }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <ul class="list-unstyled">
+                                                    <li><strong>ID del Perro:</strong> {{ perro.id_perro }}</li> {# Usamos perro.id #}
+                                                    <li><strong>Nombre:</strong> {{ perro.nombre }}</li>
+                                                    <li><strong>Raza:</strong> {{ perro.raza }}</li>
+                                                    {# 'detalle' fue eliminado. Si lo necesitas para algo, añade el campo 'descripcion' #}
+                                                    <li><strong>Descripción:</strong> {{ perro.descripcion }}</li>
+                                                    {# 'id_categoria' fue eliminado. Si lo necesitas en el futuro, deberías añadirlo al modelo #}
+                                                </ul>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botón Editar -->
+                                {# Usamos perro.id para la URL de edición #}
+                                <a class="btn btn-warning me-1" href="{% url 'edit' perro.id_perro %}">
+                                    <i class="fa-solid fa-pen fa-lg"></i>
+                                </a>
+
+                                <!-- Botón Eliminar -->
+                                {# Usamos perro.id para el ID del modal de borrar #}
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#borrar{{ perro.id_perro }}">
+                                    <i class="fa-solid fa-trash fa-lg"></i>
+                                </button>
+
+                                <!-- Modal Confirmación de Eliminación -->
+                                {# Usamos perro.id para el ID del modal de borrar #}
+                                <div class="modal fade" id="borrar{{ perro.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title">Confirmar eliminación</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                ¿Estás seguro de que deseas eliminar a <strong>{{ perro.nombre }}</strong>?
+                                            </div>
+                                            <div class="modal-footer">
+                                                {# Usamos perro.id para la URL de borrado #}
+                                                <form method="POST" action="{% url 'borrar' perro.id_perro %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+{# Mensaje si no hay perros #}
+<div class="alert alert-warning text-center">No hay perros registrados.</div>
+{% endif %}
+{% endblock %}
